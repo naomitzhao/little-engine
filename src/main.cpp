@@ -52,6 +52,10 @@ void close() {
     SDL_Quit();
 }
 
+enum Directions {
+    DIR_UP, DIR_DOWN, DIR_LEFT, DIR_RIGHT,
+};
+
 int main(int argc, char* argv[]) {
     if (!init()) {
         std::cout << "failed to init!" << std::endl;
@@ -60,9 +64,11 @@ int main(int argc, char* argv[]) {
 
     SDL_Event e; 
     bool quit = false; 
-    const int speed = 1;
+    const int speed = 3;
     Component entity = Component();
     entity.renderable = SDL_CreateTexture(renderer, -1, 0, 20, 20);
+    bool currInputs[4] = {false, false, false, false};
+
     while (quit == false){ 
         while (SDL_PollEvent(&e)){
             if (e.type == SDL_QUIT) {
@@ -73,28 +79,62 @@ int main(int argc, char* argv[]) {
             SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
             SDL_RenderClear(renderer);
 
-            if (e.type == SDL_KEYDOWN) {
-                switch (e.key.keysym.sym) {
-                    case SDLK_UP:
-                        entity.updateVelocity(0, -speed);
-                        break;
-                    case SDLK_DOWN:
-                        entity.updateVelocity(0, speed);
-                        break;
-                    case SDLK_LEFT:
-                        entity.updateVelocity(-speed, 0);
-                        break;
-                    case SDLK_RIGHT:
-                        entity.updateVelocity(speed, 0);
-                        break;
-                }
+            const Uint8* keyStates = SDL_GetKeyboardState( NULL );
+            if (keyStates[SDL_SCANCODE_UP]) {
+                // std::cout << "up ";
+                currInputs[DIR_UP] = true;
             } else {
-                entity.velocity.x = 0;
-                entity.velocity.y = 0;
+                currInputs[DIR_UP] = false;
+            }
+            if (keyStates[SDL_SCANCODE_DOWN]) {
+                // std::cout << "down ";
+                currInputs[DIR_DOWN] = true;
+            } else {
+                currInputs[DIR_DOWN] = false;
+            }
+            if (keyStates[SDL_SCANCODE_LEFT]) {
+                // std::cout << "left ";
+                currInputs[DIR_LEFT] = true;
+            } else {
+                currInputs[DIR_LEFT] = false;
+            }
+            if (keyStates[SDL_SCANCODE_RIGHT]) {
+                // std::cout << "right ";
+                currInputs[DIR_RIGHT] = true;
+            } else {
+                currInputs[DIR_RIGHT] = false;
             }
 
-            entity.position.x += entity.velocity.x;
-            entity.position.y += entity.velocity.y;
+            bool keyless = true;
+            for (bool input: currInputs) {
+                if (input) keyless = false;
+            }
+
+            if (keyless) {
+                // std::cout << "none";
+                entity.resetVelocityAcceleration();
+            } else {
+                Coords velocity;
+                if (currInputs[DIR_UP] && !currInputs[DIR_DOWN]) {
+                    velocity.y = -speed;
+                } else if (currInputs[DIR_DOWN] && !currInputs[DIR_UP]) {
+                    velocity.y = speed;
+                } else {
+                    velocity.y = 0;
+                }
+                if (currInputs[DIR_LEFT] && !currInputs[DIR_RIGHT]) {
+                    velocity.x = -speed;
+                } else if (currInputs[DIR_RIGHT] && !currInputs[DIR_LEFT]) {
+                    velocity.x = speed;
+                } else {
+                    velocity.x = 0;
+                }
+                // entity.setAcceleration(acceleration.x, acceleration.y);
+                entity.updateVelocity(velocity.x, velocity.y);
+                entity.updatePosition();
+            }
+
+            // std::cout << std::endl;
 
             SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0xFF);
             SDL_Rect entityRect = { entity.position.x, entity.position.y, 20, 20 };

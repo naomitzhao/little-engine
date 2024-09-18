@@ -8,6 +8,8 @@ Component::Component(SDL_Texture* texture) {
     position.y = 0;
     velocity.x = 0;
     velocity.y = 0;
+    acceleration.x = 0;
+    acceleration.y = 0;
     terminalVelocity = defaultTerminalVelocity;
     renderable = texture;
 }
@@ -17,12 +19,24 @@ Component::Component() {
     position.y = 0;
     velocity.x = 0;
     velocity.y = 0;
+    acceleration.x = 0;
+    acceleration.y = 0;
     terminalVelocity = defaultTerminalVelocity;
 }
 
-void Component::updateVelocity(int dvx, int dvy) {
-    int newX = velocity.x + dvx;
-    int newY = velocity.y + dvy;
+void Component::updatePosition() {
+    position.x += velocity.x;
+    position.y += velocity.y;
+}
+
+void Component::updateVelocity(int vx, int vy) {
+    velocity.x = vx;
+    velocity.y = vy;
+}
+
+void Component::updateVelocity() {
+    int newX = velocity.x + acceleration.x;
+    int newY = velocity.y + acceleration.y;
     bool xPositive = newX > 0;
     bool yPositive = newY > 0;
     velocity.x = std::min(std::abs(newX), terminalVelocity);
@@ -35,7 +49,14 @@ void Component::updateVelocity(int dvx, int dvy) {
     }
 }
 
-void Component::updatePosition() {
-    position.x += velocity.x;
-    position.y += velocity.y;
+void Component::setAcceleration(int ax, int ay) {
+    acceleration.x = ax;
+    acceleration.y = ay;
+}
+
+void Component::resetVelocityAcceleration() {
+    velocity.x = 0;
+    velocity.y = 0;
+    acceleration.x = 0;
+    acceleration.y = 0;
 }

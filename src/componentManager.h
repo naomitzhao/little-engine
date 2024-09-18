@@ -4,22 +4,22 @@
 #include <SDL2/SDL.h>
 #include <vector>
 
-struct Position {
-    int x, y;
-};
-
-struct Velocity {
+struct Coords {
     int x, y;
 };
 
 class Component {
     public:
-        Position position;
-        Velocity velocity;
+        Coords position;
+        Coords velocity;
+        Coords acceleration;
         SDL_Texture* renderable;
         int terminalVelocity;
-        void updateVelocity(int dvx, int dvy);
         void updatePosition();
+        void updateVelocity(int vx, int vy);
+        void updateVelocity();
+        void setAcceleration(int ax, int ay);
+        void resetVelocityAcceleration();
 
         Component(SDL_Texture* texture);
         Component();
