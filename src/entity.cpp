@@ -1,6 +1,6 @@
 #include "entity.h"
 
-Entity::Entity(int w, int h): width(w), height(h), grounded(false) {}
+Entity::Entity(float w, float h): width(w), height(h), grounded(false) {}
 
 void Entity::updatePosition(float deltaTime) {
     x += vx * deltaTime;

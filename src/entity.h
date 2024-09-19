@@ -5,10 +5,11 @@
 
 class Entity {
     public:
+        int id;
         float x, y;
         float vx, vy;
         float ax, ay;
-        int width, height;
+        float width, height;
         bool grounded;
         SDL_Texture* renderable;
         void setVelocity(float newVx, float newVy);
@@ -17,7 +18,7 @@ class Entity {
         void applyGravity(float gravity, float deltaTime);
         void jump(float jumpStrength);
 
-        Entity(int w, int h);
+        Entity(float w, float h);
 };
 
 #endif

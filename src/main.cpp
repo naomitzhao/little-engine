@@ -51,12 +51,18 @@ int main(int argc, char* argv[]) {
     const float timeStep = 0.016f;
     EntityManager entityManager = EntityManager();
 
-    Entity player = Entity(20.0, 20.0);
-    Entity ground = Entity(float(SCREEN_WIDTH), 40.0);
-    entityManager.entities.push_back(player);
+    Entity* player = entityManager.createEntity(20.0, 20.0); // 0
+    Entity* ground = entityManager.createEntity(float(SCREEN_WIDTH), 40.0); // 1
+    Entity* leftWall = entityManager.createEntity(0.0, float(SCREEN_HEIGHT)); // 2
+    Entity* rightWall = entityManager.createEntity(0.0, float(SCREEN_HEIGHT)); // 3
 
-    player.renderable = SDL_CreateTexture(renderer, -1, 0, player.width, player.height);
-    ground.renderable = SDL_CreateTexture(renderer, -1, 0, ground.width, ground.height);
+    player->y = SCREEN_HEIGHT / 2;
+    player->x = SCREEN_WIDTH / 2;
+    ground->y = SCREEN_HEIGHT - ground->height;
+    rightWall->x = float(SCREEN_WIDTH);
+
+    player->renderable = SDL_CreateTexture(renderer, -1, 0, player->width, player->height);
+    ground->renderable = SDL_CreateTexture(renderer, -1, 0, ground->width, ground->height);
 
     Uint32 lastFrameTime = SDL_GetTicks();
 
@@ -73,32 +79,32 @@ int main(int argc, char* argv[]) {
         const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
 
         if (currentKeyStates[SDL_SCANCODE_UP]) {
-            player.jump(300.0);
+            player->jump(300.0);
         } 
 
         if (currentKeyStates[SDL_SCANCODE_LEFT]) {
-            player.vx = -speed;
+            player->vx = -speed;
         } else if (currentKeyStates[SDL_SCANCODE_RIGHT]) {
-            player.vx = speed;
+            player->vx = speed;
         } else {
-            player.vx = 0;
+            player->vx = 0;
         }
 
-        player.applyGravity(500.0, deltaTime);
-        player.updatePosition(deltaTime);
-        entityManager.handleGroundCollision(player, SCREEN_HEIGHT - ground.height);
+        player->applyGravity(500.0, deltaTime);
+        player->updatePosition(deltaTime);
+        entityManager.handleGroundCollisions(*player);
 
-        // std::cout << player.vx << " " << player.vy << std::endl;
+        // std::cout << player.x << " " << player.y << std::endl;
 
         SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
         SDL_RenderClear(renderer);
 
         SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0xFF);
-        SDL_Rect playerRect = { player.x, player.y, 20, 20 };
+        SDL_Rect playerRect = { player->x, player->y, 20, 20 };
         SDL_RenderFillRect(renderer, &playerRect);
 
         SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0x00, 0xFF);
-        SDL_Rect groundRect = { 0, SCREEN_HEIGHT - ground.height, ground.width, ground.height };
+        SDL_Rect groundRect = { 0, ground->y, ground->width, ground->height };
         SDL_RenderFillRect(renderer, &groundRect);
 
         SDL_RenderPresent(renderer);
