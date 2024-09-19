@@ -1,6 +1,7 @@
 #include <iostream>
 #include <SDL2/SDL.h>
-#include "componentManager.h"
+#include "entityManager.h"
+#include "entity.h"
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
@@ -48,8 +49,14 @@ int main(int argc, char* argv[]) {
     bool quit = false; 
     const int speed = 200;
     const float timeStep = 0.016f;
-    Entity entity = Entity();
-    entity.renderable = SDL_CreateTexture(renderer, -1, 0, 20, 20);
+    EntityManager entityManager = EntityManager();
+
+    Entity player = Entity(20.0, 20.0);
+    Entity ground = Entity(float(SCREEN_WIDTH), 40.0);
+    entityManager.entities.push_back(player);
+
+    player.renderable = SDL_CreateTexture(renderer, -1, 0, player.width, player.height);
+    ground.renderable = SDL_CreateTexture(renderer, -1, 0, ground.width, ground.height);
 
     Uint32 lastFrameTime = SDL_GetTicks();
 
@@ -65,29 +72,34 @@ int main(int argc, char* argv[]) {
 
         const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
 
-        float vx = 0.0;
-        float vy = 0.0;
         if (currentKeyStates[SDL_SCANCODE_UP]) {
-            vy = -speed;
-        } else if (currentKeyStates[SDL_SCANCODE_DOWN]) {
-            vy = speed;
+            player.jump(300.0);
         } 
 
         if (currentKeyStates[SDL_SCANCODE_LEFT]) {
-            vx = -speed;
+            player.vx = -speed;
         } else if (currentKeyStates[SDL_SCANCODE_RIGHT]) {
-            vx = speed;
-        } 
+            player.vx = speed;
+        } else {
+            player.vx = 0;
+        }
 
-        entity.setVelocity(vx, vy);
-        entity.updatePosition(deltaTime);
+        player.applyGravity(500.0, deltaTime);
+        player.updatePosition(deltaTime);
+        entityManager.handleGroundCollision(player, SCREEN_HEIGHT - ground.height);
+
+        // std::cout << player.vx << " " << player.vy << std::endl;
 
         SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
         SDL_RenderClear(renderer);
 
         SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0xFF);
-        SDL_Rect entityRect = { entity.x, entity.y, 20, 20 };
-        SDL_RenderFillRect(renderer, &entityRect);
+        SDL_Rect playerRect = { player.x, player.y, 20, 20 };
+        SDL_RenderFillRect(renderer, &playerRect);
+
+        SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0x00, 0xFF);
+        SDL_Rect groundRect = { 0, SCREEN_HEIGHT - ground.height, ground.width, ground.height };
+        SDL_RenderFillRect(renderer, &groundRect);
 
         SDL_RenderPresent(renderer);
         

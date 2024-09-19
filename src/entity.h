@@ -1,8 +1,7 @@
-#ifndef COMPONENT_MANAGER
-#define COMPONENT_MANAGER
+#ifndef ENTITY
+#define ENTITY
 
 #include <SDL2/SDL.h>
-#include <vector>
 
 class Entity {
     public:
@@ -12,19 +11,13 @@ class Entity {
         int width, height;
         bool grounded;
         SDL_Texture* renderable;
-        void setVelocity(int newVx, int newVy);
-        void setAcceleration(int newAx, int newAy);
+        void setVelocity(float newVx, float newVy);
+        void setAcceleration(float newAx, float newAy);
         void updatePosition(float deltaTime);
         void applyGravity(float gravity, float deltaTime);
+        void jump(float jumpStrength);
 
-        Entity(SDL_Texture* texture);
-        Entity();
-};
-
-class EntityManager {
-    public:
-        std::vector<Entity> entities;
-        
+        Entity(int w, int h);
 };
 
 #endif

@@ -4,7 +4,7 @@ CXX = g++
 CXXFLAGS = -Wall
 LDFLAGS = -lSDL2
 
-SRCS = src/main.cpp src/componentManager.cpp
+SRCS = src/main.cpp src/entity.cpp src/entityManager.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 TARGET = engine
