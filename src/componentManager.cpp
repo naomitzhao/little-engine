@@ -1,62 +1,45 @@
 #include "componentManager.h"
 #include <iostream>
 
-const int defaultTerminalVelocity = 10;
 
-Component::Component(SDL_Texture* texture) {
-    position.x = 0;
-    position.y = 0;
-    velocity.x = 0;
-    velocity.y = 0;
-    acceleration.x = 0;
-    acceleration.y = 0;
-    terminalVelocity = defaultTerminalVelocity;
+Entity::Entity(SDL_Texture* texture) {
+    x = 0;
+    y = 0;
+    vx = 0;
+    vy = 0;
+    ax = 0;
+    ay = 0;
     renderable = texture;
+    grounded = true;
 }
 
-Component::Component() {
-    position.x = 0;
-    position.y = 0;
-    velocity.x = 0;
-    velocity.y = 0;
-    acceleration.x = 0;
-    acceleration.y = 0;
-    terminalVelocity = defaultTerminalVelocity;
+Entity::Entity() {
+    x = 0;
+    y = 0;
+    vx = 0;
+    vy = 0;
+    ax = 0;
+    ay = 0;
+    grounded = true;
 }
 
-void Component::updatePosition() {
-    position.x += velocity.x;
-    position.y += velocity.y;
+void Entity::updatePosition(float deltaTime) {
+    x += vx * deltaTime;
+    y += vy * deltaTime;
 }
 
-void Component::updateVelocity(int vx, int vy) {
-    velocity.x = vx;
-    velocity.y = vy;
+void Entity::setVelocity(int newVx, int newVy) {
+    vx = newVx;
+    vy = newVy;
 }
 
-void Component::updateVelocity() {
-    int newX = velocity.x + acceleration.x;
-    int newY = velocity.y + acceleration.y;
-    bool xPositive = newX > 0;
-    bool yPositive = newY > 0;
-    velocity.x = std::min(std::abs(newX), terminalVelocity);
-    velocity.y = std::min(std::abs(newY), terminalVelocity);
-    if (!xPositive) {
-        velocity.x *= -1;
+void Entity::setAcceleration(int newAx, int newAy) {
+    ax = newAx;
+    ay = newAy;
+}
+
+void Entity::applyGravity(float gravity, float deltaTime) {
+    if (!grounded) {
+        vy += gravity * deltaTime;
     }
-    if (!yPositive) {
-        velocity.y *= -1;
-    }
-}
-
-void Component::setAcceleration(int ax, int ay) {
-    acceleration.x = ax;
-    acceleration.y = ay;
-}
-
-void Component::resetVelocityAcceleration() {
-    velocity.x = 0;
-    velocity.y = 0;
-    acceleration.x = 0;
-    acceleration.y = 0;
 }

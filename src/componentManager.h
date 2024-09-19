@@ -4,30 +4,26 @@
 #include <SDL2/SDL.h>
 #include <vector>
 
-struct Coords {
-    int x, y;
-};
-
-class Component {
+class Entity {
     public:
-        Coords position;
-        Coords velocity;
-        Coords acceleration;
+        float x, y;
+        float vx, vy;
+        float ax, ay;
+        int width, height;
+        bool grounded;
         SDL_Texture* renderable;
-        int terminalVelocity;
-        void updatePosition();
-        void updateVelocity(int vx, int vy);
-        void updateVelocity();
-        void setAcceleration(int ax, int ay);
-        void resetVelocityAcceleration();
+        void setVelocity(int newVx, int newVy);
+        void setAcceleration(int newAx, int newAy);
+        void updatePosition(float deltaTime);
+        void applyGravity(float gravity, float deltaTime);
 
-        Component(SDL_Texture* texture);
-        Component();
+        Entity(SDL_Texture* texture);
+        Entity();
 };
 
-class ComponentManager {
+class EntityManager {
     public:
-        std::vector<Component> components;
+        std::vector<Entity> entities;
         
 };
 

@@ -6,7 +6,6 @@ const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 
 SDL_Window* window = NULL;
-SDL_Surface* screenSurface = NULL;
 SDL_Renderer* renderer = NULL;
 
 bool init();
@@ -33,28 +32,11 @@ bool init() {
     return true;
 }
 
-SDL_Surface* loadSurface(std::string path) {
-    SDL_Surface* loadedSurface = SDL_LoadBMP(path.c_str());
-    if (!loadedSurface) {
-        std::cout << "Couldn't load image" << path << ". SDL_Error: " << SDL_GetError() << std::endl;
-    }
-    SDL_Surface* optimizedSurface = SDL_ConvertSurface(loadedSurface, screenSurface->format, 0);
-    if (!optimizedSurface) {
-        std::cout << "Couldn't optimize surface. SDL_Error: " << SDL_GetError() << std::endl;
-    }
-    SDL_FreeSurface(loadedSurface);
-    return optimizedSurface;
-}
-
 void close() {
     SDL_DestroyWindow(window);
-    window = NULL;
+    SDL_DestroyRenderer(renderer);
     SDL_Quit();
 }
-
-enum Directions {
-    DIR_UP, DIR_DOWN, DIR_LEFT, DIR_RIGHT,
-};
 
 int main(int argc, char* argv[]) {
     if (!init()) {
@@ -64,85 +46,55 @@ int main(int argc, char* argv[]) {
 
     SDL_Event e; 
     bool quit = false; 
-    const int speed = 3;
-    Component entity = Component();
+    const int speed = 200;
+    const float timeStep = 0.016f;
+    Entity entity = Entity();
     entity.renderable = SDL_CreateTexture(renderer, -1, 0, 20, 20);
-    bool currInputs[4] = {false, false, false, false};
 
-    while (quit == false){ 
+    Uint32 lastFrameTime = SDL_GetTicks();
+
+    while (!quit){ 
+        Uint32 currFrameTime = SDL_GetTicks();
+        float deltaTime = (currFrameTime - lastFrameTime) / 1000.0f;
+        lastFrameTime = currFrameTime;
+
         while (SDL_PollEvent(&e)){
-            if (e.type == SDL_QUIT) {
+            if (e.type == SDL_QUIT){
                 quit = true;
-                continue;
-            }
+            }}
 
-            SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
-            SDL_RenderClear(renderer);
+        const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
 
-            const Uint8* keyStates = SDL_GetKeyboardState( NULL );
-            if (keyStates[SDL_SCANCODE_UP]) {
-                // std::cout << "up ";
-                currInputs[DIR_UP] = true;
-            } else {
-                currInputs[DIR_UP] = false;
-            }
-            if (keyStates[SDL_SCANCODE_DOWN]) {
-                // std::cout << "down ";
-                currInputs[DIR_DOWN] = true;
-            } else {
-                currInputs[DIR_DOWN] = false;
-            }
-            if (keyStates[SDL_SCANCODE_LEFT]) {
-                // std::cout << "left ";
-                currInputs[DIR_LEFT] = true;
-            } else {
-                currInputs[DIR_LEFT] = false;
-            }
-            if (keyStates[SDL_SCANCODE_RIGHT]) {
-                // std::cout << "right ";
-                currInputs[DIR_RIGHT] = true;
-            } else {
-                currInputs[DIR_RIGHT] = false;
-            }
-
-            bool keyless = true;
-            for (bool input: currInputs) {
-                if (input) keyless = false;
-            }
-
-            if (keyless) {
-                // std::cout << "none";
-                entity.resetVelocityAcceleration();
-            } else {
-                Coords velocity;
-                if (currInputs[DIR_UP] && !currInputs[DIR_DOWN]) {
-                    velocity.y = -speed;
-                } else if (currInputs[DIR_DOWN] && !currInputs[DIR_UP]) {
-                    velocity.y = speed;
-                } else {
-                    velocity.y = 0;
-                }
-                if (currInputs[DIR_LEFT] && !currInputs[DIR_RIGHT]) {
-                    velocity.x = -speed;
-                } else if (currInputs[DIR_RIGHT] && !currInputs[DIR_LEFT]) {
-                    velocity.x = speed;
-                } else {
-                    velocity.x = 0;
-                }
-                // entity.setAcceleration(acceleration.x, acceleration.y);
-                entity.updateVelocity(velocity.x, velocity.y);
-                entity.updatePosition();
-            }
-
-            // std::cout << std::endl;
-
-            SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0xFF);
-            SDL_Rect entityRect = { entity.position.x, entity.position.y, 20, 20 };
-            SDL_RenderFillRect(renderer, &entityRect);
-
-            SDL_RenderPresent(renderer);
-            SDL_Delay(16);
+        float vx = 0.0;
+        float vy = 0.0;
+        if (currentKeyStates[SDL_SCANCODE_UP]) {
+            vy = -speed;
+        } else if (currentKeyStates[SDL_SCANCODE_DOWN]) {
+            vy = speed;
         } 
+
+        if (currentKeyStates[SDL_SCANCODE_LEFT]) {
+            vx = -speed;
+        } else if (currentKeyStates[SDL_SCANCODE_RIGHT]) {
+            vx = speed;
+        } 
+
+        entity.setVelocity(vx, vy);
+        entity.updatePosition(deltaTime);
+
+        SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+        SDL_RenderClear(renderer);
+
+        SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0xFF);
+        SDL_Rect entityRect = { entity.x, entity.y, 20, 20 };
+        SDL_RenderFillRect(renderer, &entityRect);
+
+        SDL_RenderPresent(renderer);
+        
+        Uint32 frameTime = SDL_GetTicks() - currFrameTime;
+        if (frameTime < timeStep * 1000.0f) {
+            SDL_Delay((timeStep * 1000.0f) - frameTime);
+        }
     }
     close();
     return EXIT_SUCCESS;
