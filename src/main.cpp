@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
     Entity* ground = entityManager.createEntity(float(SCREEN_WIDTH), 40.0); // 1
     Entity* leftWall = entityManager.createEntity(0.0, float(SCREEN_HEIGHT)); // 2
     Entity* rightWall = entityManager.createEntity(0.0, float(SCREEN_HEIGHT)); // 3
-    Entity* obstacle = entityManager.createEntity(100, 20);
+    Entity* obstacle = entityManager.createEntity(100, 30);
 
     player->x = SCREEN_WIDTH / 2;
     player->y = SCREEN_HEIGHT / 2;
@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
     ground->y = SCREEN_HEIGHT - ground->height;
     rightWall->x = float(SCREEN_WIDTH);
     obstacle->x = 400;
-    obstacle->y = 350;
+    obstacle->y = 375;
 
     player->renderable = SDL_CreateTexture(renderer, -1, 0, player->width, player->height);
     ground->renderable = SDL_CreateTexture(renderer, -1, 0, ground->width, ground->height);
@@ -101,7 +101,10 @@ int main(int argc, char* argv[]) {
 
         player->applyGravity(500.0, deltaTime);
         player->updatePosition(deltaTime);
+        entityManager.handleLeftCollisions(*player);
+        entityManager.handleRightCollisions(*player);
         entityManager.handleGroundCollisions(*player);
+        entityManager.handleTopCollisions(*player);
 
         SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
         SDL_RenderClear(renderer);
