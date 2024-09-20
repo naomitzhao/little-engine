@@ -46,7 +46,7 @@ void EntityManager::handleGroundCollisions(Entity& a) {
 }
 
 bool EntityManager::isGroundCollision(Entity& a, Entity& b) {
-    if (a.y + a.height >= b.y && (a.x <= b.x + b.width && a.x + a.width >= b.x)) {
+    if (a.y + a.height >= b.y && (a.x <= b.x + b.width && a.x + a.width >= b.x) && a.y <= b.y + b.height) {
         return true;
     }
     return false;

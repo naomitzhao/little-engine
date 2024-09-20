@@ -12,6 +12,7 @@ class Entity {
         float width, height;
         bool grounded;
         SDL_Texture* renderable;
+        
         void setVelocity(float newVx, float newVy);
         void setAcceleration(float newAx, float newAy);
         void updatePosition(float deltaTime);

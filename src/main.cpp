@@ -55,16 +55,23 @@ int main(int argc, char* argv[]) {
     Entity* ground = entityManager.createEntity(float(SCREEN_WIDTH), 40.0); // 1
     Entity* leftWall = entityManager.createEntity(0.0, float(SCREEN_HEIGHT)); // 2
     Entity* rightWall = entityManager.createEntity(0.0, float(SCREEN_HEIGHT)); // 3
+    Entity* obstacle = entityManager.createEntity(100, 20);
 
-    player->y = SCREEN_HEIGHT / 2;
     player->x = SCREEN_WIDTH / 2;
+    player->y = SCREEN_HEIGHT / 2;
+    ground->x = 0;
     ground->y = SCREEN_HEIGHT - ground->height;
     rightWall->x = float(SCREEN_WIDTH);
+    obstacle->x = 400;
+    obstacle->y = 350;
 
     player->renderable = SDL_CreateTexture(renderer, -1, 0, player->width, player->height);
     ground->renderable = SDL_CreateTexture(renderer, -1, 0, ground->width, ground->height);
 
     Uint32 lastFrameTime = SDL_GetTicks();
+
+    // std::cout << "ground: " << ground->x << " " << ground->y << " " << ground->width << " " << ground->height << std::endl;
+    // std::cout << "player: " << player->x << " " << player->y << " " << player->width << " " << player->height << std::endl;
 
     while (!quit){ 
         Uint32 currFrameTime = SDL_GetTicks();
@@ -90,22 +97,26 @@ int main(int argc, char* argv[]) {
             player->vx = 0;
         }
 
+        // std::cout << player->x << " " << player->y << std::endl;
+
         player->applyGravity(500.0, deltaTime);
         player->updatePosition(deltaTime);
         entityManager.handleGroundCollisions(*player);
-
-        // std::cout << player.x << " " << player.y << std::endl;
 
         SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
         SDL_RenderClear(renderer);
 
         SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0xFF);
-        SDL_Rect playerRect = { player->x, player->y, 20, 20 };
+        SDL_Rect playerRect = { player->x, player->y, float(player->width), float(player->height) };
         SDL_RenderFillRect(renderer, &playerRect);
 
         SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0x00, 0xFF);
-        SDL_Rect groundRect = { 0, ground->y, ground->width, ground->height };
+        SDL_Rect groundRect = { ground->x, ground->y, float(ground->width), float(ground->height) };
         SDL_RenderFillRect(renderer, &groundRect);
+
+        SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0xFF, 0xFF);
+        SDL_Rect obstacleRect = { obstacle->x, obstacle->y, obstacle->width, obstacle->height };
+        SDL_RenderFillRect(renderer, &obstacleRect);
 
         SDL_RenderPresent(renderer);
         
