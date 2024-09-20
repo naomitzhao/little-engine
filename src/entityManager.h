@@ -12,6 +12,7 @@ class EntityManager {
         void handleGroundCollision(Entity& a, Entity& b);
         void handleGroundCollisions(Entity& a);
         bool isGroundCollision(Entity& a, Entity& b);
+        Entity* findGroundCollision(Entity& a);
         void setGrounded(Entity& a);
 };
 

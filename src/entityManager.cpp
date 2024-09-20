@@ -32,16 +32,12 @@ void EntityManager::handleGroundCollision(Entity& a, Entity& b) {
 }
 
 void EntityManager::handleGroundCollisions(Entity& a) {
-    if (a.grounded) {
-        return;
-    }
-    a.grounded = false;
-    for (int i = 0; i < entities.size(); i++) {
-        if (entities[i]->id != a.id && isGroundCollision(a, *entities[i])) {
-            handleGroundCollision(a, *entities[i]);
-            a.grounded = true;
-            break;
-        }
+    Entity* found = findGroundCollision(a);
+    if (found->id != a.id) {
+        handleGroundCollision(a, *found);
+        a.grounded = true;
+    } else {
+        a.grounded = false;
     }
 }
 
@@ -50,6 +46,15 @@ bool EntityManager::isGroundCollision(Entity& a, Entity& b) {
         return true;
     }
     return false;
+}
+
+Entity* EntityManager::findGroundCollision(Entity& a) {
+    for (int i = 0; i < entities.size(); i++) { 
+        if (entities[i]->id != a.id && isGroundCollision(a, *entities[i])) {
+            return entities[i];
+        }
+    }
+    return &a;
 }
 
 void EntityManager::setGrounded(Entity& a) {
