@@ -56,6 +56,7 @@ int main(int argc, char* argv[]) {
     Entity* leftWall = entityManager.createEntity(0.0, float(SCREEN_HEIGHT)); // 2
     Entity* rightWall = entityManager.createEntity(0.0, float(SCREEN_HEIGHT)); // 3
     Entity* obstacle = entityManager.createEntity(100, 30);
+    Entity* obstacle2 = entityManager.createEntity(100, 30);
 
     player->x = SCREEN_WIDTH / 2;
     player->y = SCREEN_HEIGHT / 2;
@@ -64,14 +65,13 @@ int main(int argc, char* argv[]) {
     rightWall->x = float(SCREEN_WIDTH);
     obstacle->x = 400;
     obstacle->y = 375;
+    obstacle2->x = 0;
+    obstacle2->y = ground->y - obstacle2->height / 2 + 10;
 
     player->renderable = SDL_CreateTexture(renderer, -1, 0, player->width, player->height);
     ground->renderable = SDL_CreateTexture(renderer, -1, 0, ground->width, ground->height);
 
     Uint32 lastFrameTime = SDL_GetTicks();
-
-    // std::cout << "ground: " << ground->x << " " << ground->y << " " << ground->width << " " << ground->height << std::endl;
-    // std::cout << "player: " << player->x << " " << player->y << " " << player->width << " " << player->height << std::endl;
 
     while (!quit){ 
         Uint32 currFrameTime = SDL_GetTicks();
@@ -97,14 +97,12 @@ int main(int argc, char* argv[]) {
             player->vx = 0;
         }
 
-        // std::cout << player->x << " " << player->y << std::endl;
-
         player->applyGravity(500.0, deltaTime);
-        player->updatePosition(deltaTime);
-        entityManager.handleLeftCollisions(*player);
-        entityManager.handleRightCollisions(*player);
-        entityManager.handleGroundCollisions(*player);
-        entityManager.handleTopCollisions(*player);
+        player->updateY(deltaTime);
+        entityManager.resolveVerticalCollisions(*player);
+        entityManager.setGrounded(*player);
+        player->updateX(deltaTime);
+        entityManager.resolveHorizontalCollisions(*player);
 
         SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
         SDL_RenderClear(renderer);
@@ -120,6 +118,10 @@ int main(int argc, char* argv[]) {
         SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0xFF, 0xFF);
         SDL_Rect obstacleRect = { obstacle->x, obstacle->y, obstacle->width, obstacle->height };
         SDL_RenderFillRect(renderer, &obstacleRect);
+
+        SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0xFF, 0xFF);
+        SDL_Rect obstacle2Rect = { obstacle2->x, obstacle2->y, obstacle2->width, obstacle2->height };
+        SDL_RenderFillRect(renderer, &obstacle2Rect);
 
         SDL_RenderPresent(renderer);
         

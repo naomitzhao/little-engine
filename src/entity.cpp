@@ -2,8 +2,11 @@
 
 Entity::Entity(float w, float h): id(-1), x(0), y(0), vx(0), vy(0), ax(0), ay(0), width(w), height(h), grounded(false) {}
 
-void Entity::updatePosition(float deltaTime) {
+void Entity::updateX(float deltaTime) {
     x += vx * deltaTime;
+}
+
+void Entity::updateY(float deltaTime) {
     y += vy * deltaTime;
 }
 
