@@ -14,7 +14,6 @@ class Entity {
         SDL_Texture* renderable;
         
         void setVelocity(float newVx, float newVy);
-        void setAcceleration(float newAx, float newAy);
         void updateX(float deltaTime);
         void updateY(float deltaTime);
         void applyGravity(float gravity, float deltaTime);

@@ -10,16 +10,6 @@ void Entity::updateY(float deltaTime) {
     y += vy * deltaTime;
 }
 
-void Entity::setVelocity(float newVx, float newVy) {
-    vx = newVx;
-    vy = newVy;
-}
-
-void Entity::setAcceleration(float newAx, float newAy) {
-    ax = newAx;
-    ay = newAy;
-}
-
 void Entity::applyGravity(float gravity, float deltaTime) {
     if (!grounded) {
         vy += gravity * deltaTime;
