@@ -8,9 +8,27 @@ const int SCREEN_HEIGHT = 480;
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
+SDL_Texture* plusButtonTexture = NULL;
 
 bool init();
 void close();
+
+bool loadPlusButton() {
+
+    SDL_Surface* plusButtonSurface = SDL_LoadBMP("src/plus.bmp");
+    if (!plusButtonSurface) {
+        std::cout << "Couldn't load image. SDL_Error: " << SDL_GetError() << std::endl;
+        return false;
+    }
+
+    plusButtonTexture = SDL_CreateTextureFromSurface(renderer, plusButtonSurface);
+    if (!plusButtonTexture) {
+         std::cout << "Couldn't create texture. SDL_Error: " << SDL_GetError() << std::endl;
+        return false;
+    }
+
+    return true;
+}
 
 bool init() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -30,8 +48,14 @@ bool init() {
         return false;
     }
 
+    if (!loadPlusButton()) {
+        return false;
+    }
+
     return true;
 }
+
+
 
 void close() {
     SDL_DestroyWindow(window);
@@ -57,6 +81,7 @@ int main(int argc, char* argv[]) {
     Entity* rightWall = entityManager.createEntity(0.0, float(SCREEN_HEIGHT)); // 3
     Entity* obstacle = entityManager.createEntity(100, 30);
     Entity* obstacle2 = entityManager.createEntity(100, 30);
+    Entity* plusButton = entityManager.createEntity(70, 69);
 
     player->x = SCREEN_WIDTH / 2;
     player->y = SCREEN_HEIGHT / 2;
@@ -67,6 +92,8 @@ int main(int argc, char* argv[]) {
     obstacle->y = 375;
     obstacle2->x = 0;
     obstacle2->y = ground->y - obstacle2->height / 2 + 10;
+    plusButton->x = 10;
+    plusButton->y = 10;
 
     player->renderable = SDL_CreateTexture(renderer, -1, 0, player->width, player->height);
     ground->renderable = SDL_CreateTexture(renderer, -1, 0, ground->width, ground->height);
@@ -122,6 +149,13 @@ int main(int argc, char* argv[]) {
         SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0xFF, 0xFF);
         SDL_Rect obstacle2Rect = { obstacle2->x, obstacle2->y, obstacle2->width, obstacle2->height };
         SDL_RenderFillRect(renderer, &obstacle2Rect);
+
+        SDL_Rect plusButtonRect;
+        plusButtonRect.x = plusButton->x;
+        plusButtonRect.y = plusButton->y;
+        plusButtonRect.w = plusButton->width;
+        plusButtonRect.h = plusButton->height;
+        SDL_RenderCopy(renderer, plusButtonTexture, NULL, &plusButtonRect);
 
         SDL_RenderPresent(renderer);
         
