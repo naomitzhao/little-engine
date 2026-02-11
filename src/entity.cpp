@@ -7,13 +7,7 @@ void Entity::updateX(float deltaTime) {
 }
 
 void Entity::updateY(float deltaTime) {
-    y += vy * deltaTime;
-}
-
-void Entity::applyGravity(float gravity, float deltaTime) {
-    if (!grounded) {
-        vy += gravity * deltaTime;
-    }
+    y += vy * deltaTime * 1;
 }
 
 void Entity::jump(float jumpStrength) {
